@@ -19,9 +19,15 @@ router.post("/create-user", async (req, res, next) => {
       return next(new ErrorHandler("User already exists", 400));
     }
 
-    const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-      folder: "avatars",
-    });
+   const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+     folder: "avatars",
+   });
+    //const data = new FormData()
+    //data.append("image",avatar)
+   // fetch(  "image bb upload url?key= image bb api key " ,{
+    //  method:"POST",
+   //   body:data
+    //})
 
     const user = {
       name: name,
@@ -35,7 +41,7 @@ router.post("/create-user", async (req, res, next) => {
 
     const activationToken = createActivationToken(user);
 
-    const activationUrl = `https://eshop-tutorial-pyri.vercel.app/activation/${activationToken}`;
+    const activationUrl = `https://local-handler.netlify.app/activation/${activationToken}`;
 
     try {
       await sendMail({
