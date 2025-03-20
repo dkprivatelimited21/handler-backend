@@ -6,7 +6,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 app.use(cors({
-  origin: ['https://local-handler.netlify.app',],
+  origin: ['https://local01-handler.netlify.app',],
   credentials: true
 }));
 
