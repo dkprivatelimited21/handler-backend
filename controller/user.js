@@ -8,12 +8,7 @@ const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
-const cors = require("cors");
 
-app.use(cors({
-  origin: ['https://local-handler.netlify.app',],
-  credentials: true
-}));
 // create user
 router.post("/create-user", async (req, res, next) => {
   try {
