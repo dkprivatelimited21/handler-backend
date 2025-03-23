@@ -8,8 +8,6 @@ const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
-
-}));
 // create user
 router.post("/create-user", async (req, res, next) => {
   try {
@@ -42,7 +40,7 @@ router.post("/create-user", async (req, res, next) => {
 
     const activationToken = createActivationToken(user);
 
-    const activationUrl = `https://local-handler.netlify.app/activation/${activationToken}`;
+    const activationUrl = `https://handler-frontend.vercel.app/activation/${activationToken}`;
 
     try {
       await sendMail({
