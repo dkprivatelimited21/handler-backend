@@ -4,8 +4,6 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
-const cors = require('cors')
 const corsOption = {
     origin: ['https://local-handler.vercel.app'],
     credentials: true,
