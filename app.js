@@ -5,10 +5,13 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-app.use(cors({
-  origin: ['https://local-handler.vercel.app/',],
-  credentials: true
-}));
+const cors = require('cors')
+const corsOption = {
+    origin: ['https://local-handler.vercel.app'],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+}
+app.use(cors(corsOption));
 
 app.use(express.json());
 app.use(cookieParser());
