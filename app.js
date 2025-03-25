@@ -3,13 +3,13 @@ const ErrorHandler = require("./middleware/error");
 const app = express();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
-const cors = require("cors");
-const corsOption = {
-    origin: ['https://local-handler.vercel.app'],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-}
-app.use(cors(corsOption));
+import cors from "cors";
+const app = express();
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 app.use(express.json());
 app.use(cookieParser());
