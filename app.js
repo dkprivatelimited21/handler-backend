@@ -3,7 +3,7 @@ const ErrorHandler = require("./middleware/error");
 const app = express();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
-import cors from "cors";
+
 const app = express();
 app.use(
   cors({
