@@ -6,7 +6,7 @@ const bodyParser = require("body-parser");
 
 app.use(
   cors({
-    origin: "*",
+    origin: "https://local-handler.vercel.app/",
   })
 );
 
