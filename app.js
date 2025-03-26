@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require('cors')
 const corsOption = {
-    origin: ['https://local-handler.vercel.app/'],
+    origin: ["https://local-handler.vercel.app"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
 }
