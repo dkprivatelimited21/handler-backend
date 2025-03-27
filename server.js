@@ -5,7 +5,7 @@ const cors = require("cors")
 
 app.use(cors({
 
-	origin:"https://local-handler.vercel.app/"
+	origin:"https://local-handler.vercel.app"
 }));
 
 // Handling uncaught Exception
