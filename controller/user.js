@@ -8,6 +8,8 @@ const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
+
+
 // create user
 router.post("/create-user", async (req, res, next) => {
   try {
@@ -21,12 +23,6 @@ router.post("/create-user", async (req, res, next) => {
    const myCloud = await cloudinary.v2.uploader.upload(avatar, {
      folder: "avatars",
    });
-    //const data = new FormData()
-    //data.append("image",avatar)
-   // fetch(  "image bb upload url?key= image bb api key " ,{
-    //  method:"POST",
-   //   body:data
-    //})
 
     const user = {
       name: name,
