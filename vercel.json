@@ -8,12 +8,13 @@
   ],
   "routes": [
     {
-      "src": "/(.https://local-handler.vercel.app)",
+      "src": "/(.*)",
       "dest": "./server.js",
       "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*"
       }
     }
-  ]
+  ],
+	{ "rewrites": [{ "source": "/(.*)", "destination": "/" }] }
 }
