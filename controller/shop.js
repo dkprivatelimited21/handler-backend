@@ -39,7 +39,7 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
 
     const activationToken = createActivationToken(seller);
 
-    const activationUrl = `https://local-handler.netlify.app/activation/${activationToken}`;
+    const activationUrl = `https://local-handler.vercel.app/activation/${activationToken}`;
 
     try {
       await sendMail({
