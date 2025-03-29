@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 
 import axios from 'axios';
+const axios = require('axios');
 
 const instance = axios.create({
 baseURL: 'https://local-handler.vercel.app',
