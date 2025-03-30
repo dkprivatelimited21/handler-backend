@@ -4,21 +4,6 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 
-
-const axios = require('axios');
-
-const instance = axios.create({
-baseURL: 'https://local-handler.vercel.app',
-headers: {
-'Authorization': `Bearer ${token}`,
-'Content-Type': 'application/json',
-'Access-Control-Allow-Credentials': 'true'
-}
-});
-
-instance.get('/api_resource')
-.then(response => console.log(response.data))
-.catch(error => console.error('Error:', error));
 app.use(express.json());
 app.use(cookieParser());
 app.use("/test", (req, res) => {
