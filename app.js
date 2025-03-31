@@ -6,10 +6,12 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-app.use(cors({
-  origin: ['https://local-handler.vercel.app',],
-  credentials: true
-}));
+app.use((req,res,next)=>{
+    res.setHeader('Access-Control-Allow-Origin','https://local-handler.vercel.app');
+    res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE');
+    res.setHeader('Access-Control-Allow-Methods','Content-Type','Authorization');
+    next(); 
+})
 app.use(express.json());
 app.use(cookieParser());
 app.use("/test", (req, res) => {
