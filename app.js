@@ -1,4 +1,3 @@
-import
 
 const express = require("express");
 const ErrorHandler = require("./middleware/error");
