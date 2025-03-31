@@ -7,7 +7,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors")
 
 app.use(cors({
-origin: 'https://local-handler.vercel.app',
+Access-Control-Allow-Origin: 'https://local-handler.vercel.app',
 methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 allowedHeaders: ['Content-Type', 'Authorization']
 }));
