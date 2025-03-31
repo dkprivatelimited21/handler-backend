@@ -8,8 +8,6 @@ const cors = require("cors")
 
 app.use(cors({
 Access-Control-Allow-Origin: https://local-handler.vercel.app
-methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 
