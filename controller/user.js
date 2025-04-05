@@ -9,9 +9,8 @@ const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
 
-
 // create user
-router.POST("/create-user", async (req, res, next) => {
+router.post("/create-user", async (req, res, next) => {
   try {
     const { name, email, password, avatar } = req.body;
     const userEmail = await User.findOne({ email });
@@ -20,9 +19,9 @@ router.POST("/create-user", async (req, res, next) => {
       return next(new ErrorHandler("User already exists", 400));
     }
 
-   const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-     folder: "avatars",
-   });
+    const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+      folder: "avatars",
+    });
 
     const user = {
       name: name,
@@ -64,7 +63,7 @@ const createActivationToken = (user) => {
 };
 
 // activate user
-router.POST(
+router.post(
   "/activation",
   catchAsyncErrors(async (req, res, next) => {
     try {
@@ -100,7 +99,7 @@ router.POST(
 );
 
 // login user
-router.POST(
+router.post(
   "/login-user",
   catchAsyncErrors(async (req, res, next) => {
     try {
@@ -132,7 +131,7 @@ router.POST(
 );
 
 // load user
-router.GET(
+router.get(
   "/getuser",
   isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
@@ -154,7 +153,7 @@ router.GET(
 );
 
 // log out user
-router.GET(
+router.get(
   "/logout",
   catchAsyncErrors(async (req, res, next) => {
     try {
@@ -175,7 +174,7 @@ router.GET(
 );
 
 // update user info
-router.PUT(
+router.put(
   "/update-user-info",
   isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
@@ -213,7 +212,7 @@ router.PUT(
 );
 
 // update user avatar
-router.PUT(
+router.put(
   "/update-avatar",
   isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
@@ -248,7 +247,7 @@ router.PUT(
 );
 
 // update user addresses
-router.PUT(
+router.put(
   "/update-user-addresses",
   isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
@@ -288,7 +287,7 @@ router.PUT(
 );
 
 // delete user address
-router.DELETE(
+router.delete(
   "/delete-user-address/:id",
   isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
@@ -313,7 +312,7 @@ router.DELETE(
 );
 
 // update user password
-router.POST(
+router.put(
   "/update-user-password",
   isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
@@ -348,7 +347,7 @@ router.POST(
 );
 
 // find user infoormation with the userId
-router.GET(
+router.get(
   "/user-info/:id",
   catchAsyncErrors(async (req, res, next) => {
     try {
@@ -365,7 +364,7 @@ router.GET(
 );
 
 // all users --- for admin
-router.GET(
+router.get(
   "/admin-all-users",
   isAuthenticated,
   isAdmin("Admin"),
@@ -385,7 +384,7 @@ router.GET(
 );
 
 // delete users --- admin
-router.DELETE(
+router.delete(
   "/delete-user/:id",
   isAuthenticated,
   isAdmin("Admin"),
