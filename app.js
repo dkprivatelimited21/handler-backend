@@ -7,8 +7,7 @@ const cors = require("cors");
 
 app.use(cors({
   origin: ['https://local-handler.vercel.app',],
-  credentials: true,
-  methods: ["GET","POST","PUT","DELETE"],
+  credentials: true
 }));
 
 app.use(express.json());
