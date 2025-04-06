@@ -1,22 +1,22 @@
-const express = require("express");
-const ErrorHandler = require("./middleware/error");
+import express, { json } from "express";
+import ErrorHandler from "./middleware/error";
 const app = express();
-const cookieParser = require("cookie-parser");
-const bodyParser = require("body-parser");
-const cors = require("cors");
+import cookieParser from "cookie-parser";
+import { urlencoded } from "body-parser";
+import cors from "cors";
 
 app.use(cors({
   origin: ['https://local-handler.vercel.app',],
   credentials: true
 }));
 
-app.use(express.json());
+app.use(json());
 app.use(cookieParser());
 app.use("/test", (req, res) => {
   res.send("Hello world!");
 });
 
-app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+app.use(urlencoded({ extended: true, limit: "50mb" }));
 
 // config
 if (process.env.NODE_ENV !== "PRODUCTION") {
@@ -26,16 +26,16 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
 }
 
 // import routes
-const user = require("./controller/user");
-const shop = require("./controller/shop");
-const product = require("./controller/product");
-const event = require("./controller/event");
-const coupon = require("./controller/coupounCode");
-const payment = require("./controller/payment");
-const order = require("./controller/order");
-const conversation = require("./controller/conversation");
-const message = require("./controller/message");
-const withdraw = require("./controller/withdraw");
+import user from "./controller/user";
+import shop from "./controller/shop";
+import product from "./controller/product";
+import event from "./controller/event";
+import coupon from "./controller/coupounCode";
+import payment from "./controller/payment";
+import order from "./controller/order";
+import conversation from "./controller/conversation";
+import message from "./controller/message";
+import withdraw from "./controller/withdraw";
 
 app.use("/api/v2/user", user);
 app.use("/api/v2/conversation", conversation);
@@ -51,4 +51,4 @@ app.use("/api/v2/withdraw", withdraw);
 // it's for ErrorHandling
 app.use(ErrorHandler);
 
-module.exports = app;
+export default app;

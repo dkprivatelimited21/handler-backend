@@ -1,25 +1,25 @@
-const express = require("express");
-const User = require("../model/user");
-const router = express.Router();
-const cloudinary = require("cloudinary");
-const ErrorHandler = require("../utils/ErrorHandler");
-const catchAsyncErrors = require("../middleware/catchAsyncErrors");
-const jwt = require("jsonwebtoken");
-const sendMail = require("../utils/sendMail");
-const sendToken = require("../utils/jwtToken");
-const { isAuthenticated, isAdmin } = require("../middleware/auth");
+import { Router } from "express";
+import { findOne, create, findById, updateOne, find, findByIdAndDelete } from "../model/user";
+const router = Router();
+import { v2 } from "cloudinary";
+import ErrorHandler from "../utils/ErrorHandler";
+import catchAsyncErrors from "../middleware/catchAsyncErrors";
+import { sign, verify } from "jsonwebtoken";
+import sendMail from "../utils/sendMail";
+import sendToken from "../utils/jwtToken";
+import { isAuthenticated, isAdmin } from "../middleware/auth";
 
 // create user
 router.post("/create-user", async (req, res, next) => {
   try {
     const { name, email, password, avatar } = req.body;
-    const userEmail = await User.findOne({ email });
+    const userEmail = await findOne({ email });
 
     if (userEmail) {
       return next(new ErrorHandler("User already exists", 400));
     }
 
-    const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+    const myCloud = await v2.uploader.upload(avatar, {
       folder: "avatars",
     });
 
@@ -57,7 +57,7 @@ router.post("/create-user", async (req, res, next) => {
 
 // create activation token
 const createActivationToken = (user) => {
-  return jwt.sign(user, process.env.ACTIVATION_SECRET, {
+  return sign(user, process.env.ACTIVATION_SECRET, {
     expiresIn: "5m",
   });
 };
@@ -69,7 +69,7 @@ router.post(
     try {
       const { activation_token } = req.body;
 
-      const newUser = jwt.verify(
+      const newUser = verify(
         activation_token,
         process.env.ACTIVATION_SECRET
       );
@@ -79,12 +79,12 @@ router.post(
       }
       const { name, email, password, avatar } = newUser;
 
-      let user = await User.findOne({ email });
+      let user = await findOne({ email });
 
       if (user) {
         return next(new ErrorHandler("User already exists", 400));
       }
-      user = await User.create({
+      user = await create({
         name,
         email,
         avatar,
@@ -109,7 +109,7 @@ router.post(
         return next(new ErrorHandler("Please provide the all fields!", 400));
       }
 
-      const user = await User.findOne({ email }).select("+password");
+      const user = await findOne({ email }).select("+password");
 
       if (!user) {
         return next(new ErrorHandler("User doesn't exists!", 400));
@@ -136,7 +136,7 @@ router.get(
   isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const user = await User.findById(req.user.id);
+      const user = await findById(req.user.id);
 
       if (!user) {
         return next(new ErrorHandler("User doesn't exists", 400));
@@ -181,7 +181,7 @@ router.put(
     try {
       const { email, password, phoneNumber, name } = req.body;
 
-      const user = await User.findOne({ email }).select("+password");
+      const user = await findOne({ email }).select("+password");
 
       if (!user) {
         return next(new ErrorHandler("User not found", 400));
@@ -217,13 +217,13 @@ router.put(
   isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
     try {
-      let existsUser = await User.findById(req.user.id);
+      let existsUser = await findById(req.user.id);
       if (req.body.avatar !== "") {
         const imageId = existsUser.avatar.public_id;
 
-        await cloudinary.v2.uploader.destroy(imageId);
+        await v2.uploader.destroy(imageId);
 
-        const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+        const myCloud = await v2.uploader.upload(req.body.avatar, {
           folder: "avatars",
           width: 150,
         });
@@ -252,7 +252,7 @@ router.put(
   isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const user = await User.findById(req.user.id);
+      const user = await findById(req.user.id);
 
       const sameTypeAddress = user.addresses.find(
         (address) => address.addressType === req.body.addressType
@@ -295,14 +295,14 @@ router.delete(
       const userId = req.user._id;
       const addressId = req.params.id;
 
-      await User.updateOne(
+      await updateOne(
         {
           _id: userId,
         },
         { $pull: { addresses: { _id: addressId } } }
       );
 
-      const user = await User.findById(userId);
+      const user = await findById(userId);
 
       res.status(200).json({ success: true, user });
     } catch (error) {
@@ -317,7 +317,7 @@ router.put(
   isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const user = await User.findById(req.user.id).select("+password");
+      const user = await findById(req.user.id).select("+password");
 
       const isPasswordMatched = await user.comparePassword(
         req.body.oldPassword
@@ -351,7 +351,7 @@ router.get(
   "/user-info/:id",
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const user = await User.findById(req.params.id);
+      const user = await findById(req.params.id);
 
       res.status(201).json({
         success: true,
@@ -370,7 +370,7 @@ router.get(
   isAdmin("Admin"),
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const users = await User.find().sort({
+      const users = await find().sort({
         createdAt: -1,
       });
       res.status(201).json({
@@ -390,7 +390,7 @@ router.delete(
   isAdmin("Admin"),
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const user = await User.findById(req.params.id);
+      const user = await findById(req.params.id);
 
       if (!user) {
         return next(
@@ -400,9 +400,9 @@ router.delete(
 
       const imageId = user.avatar.public_id;
 
-      await cloudinary.v2.uploader.destroy(imageId);
+      await v2.uploader.destroy(imageId);
 
-      await User.findByIdAndDelete(req.params.id);
+      await findByIdAndDelete(req.params.id);
 
       res.status(201).json({
         success: true,
@@ -414,4 +414,4 @@ router.delete(
   })
 );
 
-module.exports = router;
+export default router;

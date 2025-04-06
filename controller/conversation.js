@@ -1,9 +1,9 @@
-const Conversation = require("../model/conversation");
-const ErrorHandler = require("../utils/ErrorHandler");
-const catchAsyncErrors = require("../middleware/catchAsyncErrors");
-const express = require("express");
-const { isSeller, isAuthenticated } = require("../middleware/auth");
-const router = express.Router();
+import { findOne, create, find, findByIdAndUpdate } from "../model/conversation";
+import ErrorHandler from "../utils/ErrorHandler";
+import catchAsyncErrors from "../middleware/catchAsyncErrors";
+import { Router } from "express";
+import { isSeller, isAuthenticated } from "../middleware/auth";
+const router = Router();
 
 // create a new conversation
 router.post(
@@ -12,7 +12,7 @@ router.post(
     try {
       const { groupTitle, userId, sellerId } = req.body;
 
-      const isConversationExist = await Conversation.findOne({ groupTitle });
+      const isConversationExist = await findOne({ groupTitle });
 
       if (isConversationExist) {
         const conversation = isConversationExist;
@@ -21,7 +21,7 @@ router.post(
           conversation,
         });
       } else {
-        const conversation = await Conversation.create({
+        const conversation = await create({
           members: [userId, sellerId],
           groupTitle: groupTitle,
         });
@@ -43,7 +43,7 @@ router.get(
   isSeller,
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const conversations = await Conversation.find({
+      const conversations = await find({
         members: {
           $in: [req.params.id],
         },
@@ -66,7 +66,7 @@ router.get(
   isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const conversations = await Conversation.find({
+      const conversations = await find({
         members: {
           $in: [req.params.id],
         },
@@ -89,7 +89,7 @@ router.put(
     try {
       const { lastMessage, lastMessageId } = req.body;
 
-      const conversation = await Conversation.findByIdAndUpdate(req.params.id, {
+      const conversation = await findByIdAndUpdate(req.params.id, {
         lastMessage,
         lastMessageId,
       });
@@ -104,4 +104,4 @@ router.put(
   })
 );
 
-module.exports = router;
+export default router;
