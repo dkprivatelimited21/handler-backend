@@ -2,7 +2,6 @@ const app = require("./app");
 const connectDatabase = require("./db/Database");
 const cloudinary = require("cloudinary");
 
-app.use(routes);
 // Handling uncaught Exception
 process.on("uncaughtException", (err) => {
   console.log(`Error: ${err.message}`);
@@ -27,7 +26,7 @@ cloudinary.config({
 
 
 // create server
-const server = listen(process.env.PORT, () => {
+const server = app.listen(process.env.PORT, () => {
   console.log(
     `Server is running on http://localhost:${process.env.PORT}`
   );
