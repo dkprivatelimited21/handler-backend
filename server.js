@@ -1,6 +1,8 @@
-import { listen } from "./app";
-import connectDatabase from "./db/Database";
-import { config } from "cloudinary";
+const app = require("./app");
+const connectDatabase = require("./db/Database");
+const cloudinary = require("cloudinary");
+
+app.use(routes);
 // Handling uncaught Exception
 process.on("uncaughtException", (err) => {
   console.log(`Error: ${err.message}`);
@@ -17,7 +19,7 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
 // connect db
 connectDatabase();
 
-config({
+cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET

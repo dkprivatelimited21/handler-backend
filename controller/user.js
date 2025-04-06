@@ -8,7 +8,7 @@ import { sign, verify } from "jsonwebtoken";
 import sendMail from "../utils/sendMail";
 import sendToken from "../utils/jwtToken";
 import { isAuthenticated, isAdmin } from "../middleware/auth";
-
+import { BrowserRouter as Router } from 'react-router-dom';
 // create user
 router.post("/create-user", async (req, res, next) => {
   try {
