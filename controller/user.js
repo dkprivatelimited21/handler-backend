@@ -1,4 +1,3 @@
-import { Router } from "express";
 import { findOne, create, findById, updateOne, find, findByIdAndDelete } from "../model/user";
 const router = Router();
 import { v2 } from "cloudinary";
