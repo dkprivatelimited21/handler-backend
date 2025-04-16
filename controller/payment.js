@@ -3,12 +3,12 @@ const router = express.Router();
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const Razorpay = require("razorpay");
+//const Razorpay = require("razorpay");
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_SECRET,
-});
+//const razorpay = new Razorpay({
+//  key_id: process.env.RAZORPAY_KEY_ID,
+//  key_secret: process.env.RAZORPAY_SECRET,
+//});
 
 // Stripe payment
 router.post(
@@ -37,18 +37,18 @@ router.get(
 );
 
 // Razorpay order route
-router.post(
-  "/razorpay-checkout",
-  catchAsyncErrors(async (req, res) => {
-    const options = {
-      amount: req.body.amount,
-      currency: "INR",
-      receipt: `receipt_order_${Date.now()}`,
-    };
+//router.post(
+//  "/razorpay-checkout",
+//  catchAsyncErrors(async (req, res) => {
+//    const options = {
+ //     amount: req.body.amount,
+//      currency: "INR",
+//      receipt: `receipt_order_${Date.now()}`,
+//    };
 
-    const order = await razorpay.orders.create(options);
-    res.status(200).json(order);
-  })
-);
+ //   const order = await razorpay.orders.create(options);
+ //   res.status(200).json(order);
+//  })
+//);
 
 module.exports = router;
