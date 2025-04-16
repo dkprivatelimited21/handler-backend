@@ -27,6 +27,14 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: [true, "Please enter your product stock!"],
   },
+  sizes: {
+    type: [String],
+    default: [],
+  },
+  colors: {
+    type: [String],
+    default: [],
+  },
   images: [
     {
       public_id: {
@@ -53,10 +61,10 @@ const productSchema = new mongoose.Schema({
       productId: {
         type: String,
       },
-      createdAt:{
+      createdAt: {
         type: Date,
         default: Date.now(),
-      }
+      },
     },
   ],
   ratings: {

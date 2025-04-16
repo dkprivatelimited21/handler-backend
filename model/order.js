@@ -1,26 +1,41 @@
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-    cart:{
-        type: Array,
-        required: true,
+    cart: [
+  {
+    productId: {
+      type: String,
+      required: true,
     },
-    shippingAddress:{
-        type: Object,
-        required: true,
+    name: {
+      type: String,
     },
-    user:{
-        type: Object,
-        required: true,
+    quantity: {
+      type: Number,
+      required: true,
     },
-    totalPrice:{
-        type: Number,
-        required: true,
+    price: {
+      type: Number,
     },
-    status:{
-        type: String,
-        default: "Processing",
+    selectedSize: {
+      type: String,
     },
+    selectedColor: {
+      type: String,
+    },
+    image: {
+      type: String,
+    },
+    shopId: {
+      type: String,
+    },
+    isReviewed: {
+      type: Boolean,
+      default: false,
+    },
+  },
+],
+
     paymentInfo:{
         id:{
             type: String,

@@ -43,6 +43,16 @@ router.post(
         productData.images = imagesLinks;
         productData.shop = shop;
 
+
+if (req.body.sizes && typeof req.body.sizes === "string") {
+  req.body.sizes = JSON.parse(req.body.sizes);
+}
+if (req.body.colors && typeof req.body.colors === "string") {
+  req.body.colors = JSON.parse(req.body.colors);
+}
+
+
+
         const product = await Product.create(productData);
 
         res.status(201).json({
