@@ -106,17 +106,6 @@ router.put(
         });
       }
 
-if (req.body.status === "Shipped" && !req.body.trackingId) {
-  return next(new ErrorHandler("Tracking ID is required to mark as Shipped", 400));
-}
-
-if (req.body.status === "Shipped") {
-  order.trackingId = req.body.trackingId;
-}
-
-
-
-
       order.status = req.body.status;
 
       if (req.body.status === "Delivered") {
