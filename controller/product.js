@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const { isSeller, isAuthenticated, isAdmin } = require("../middleware/auth");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const router = express.Router();
