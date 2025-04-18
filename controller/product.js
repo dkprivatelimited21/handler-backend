@@ -87,30 +87,35 @@ router.delete(
   "/delete-shop-product/:id",
   isSeller,
   catchAsyncErrors(async (req, res, next) => {
-    const product = await Product.findById(req.params.id);
+    try {
+      console.log("Deleting product:", req.params.id);
+      const product = await Product.findById(req.params.id);
 
-    if (!product) {
-      return next(new ErrorHandler("Product not found", 404));
+      if (!product) {
+        return next(new ErrorHandler("Product not found", 404));
+      }
+
+      if (product.shop._id.toString() !== req.seller._id.toString()) {
+        return next(
+          new ErrorHandler("You are not allowed to delete this product", 403)
+        );
+      }
+
+      for (let i = 0; i < product.images.length; i++) {
+        console.log("Destroying image:", product.images[i].public_id);
+        await cloudinary.v2.uploader.destroy(product.images[i].public_id);
+      }
+
+      await product.remove();
+
+      res.status(200).json({
+        success: true,
+        message: "Product Deleted successfully!",
+      });
+    } catch (error) {
+      console.error("Delete error:", error); // ✅ log backend error
+      return next(new ErrorHandler(error.message, 500));
     }
-
-    // ✅ Add this check to ensure seller owns the product
-    if (product.shop._id.toString() !== req.seller._id.toString()) {
-      return next(
-        new ErrorHandler("You are not allowed to delete this product", 403)
-      );
-    }
-
-    // ✅ Delete images from cloudinary
-    for (let i = 0; i < product.images.length; i++) {
-      await cloudinary.v2.uploader.destroy(product.images[i].public_id);
-    }
-
-    await product.remove();
-
-    res.status(200).json({
-      success: true,
-      message: "Product Deleted successfully!",
-    });
   })
 );
 
