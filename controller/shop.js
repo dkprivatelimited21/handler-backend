@@ -1,3 +1,4 @@
+import {isAuthenticated } from "../middleware/auth"
 const express = require("express");
 const path = require("path");
 const router = express.Router();
