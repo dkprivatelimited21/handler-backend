@@ -183,15 +183,31 @@ router.get(
 );
 
 // get shop info
+const { isAuthenticated } = require("../middleware/auth"); // ensure this is imported
+
 router.get(
   "/get-shop-info/:id",
+  isAuthenticated, // ✅ protects route so we can check user role
   catchAsyncErrors(async (req, res, next) => {
-    try {
-      const shop = await Shop.findById(req.params.id);
-      res.status(201).json({
-        success: true,
-        shop,
-      });
+    const shop = await Shop.findById(req.params.id).lean();
+
+    if (!shop) {
+      return next(new ErrorHandler("Shop not found", 404));
+    }
+
+    const isAdmin = req.user?.role === "Admin";
+
+    // ✅ Only allow admin to see sensitive info
+    if (!isAdmin) {
+      delete shop.phoneNumber;
+      delete shop.address;
+      delete shop.email;
+    }
+
+    res.status(200).json({ shop });
+  })
+);
+
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }
