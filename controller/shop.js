@@ -10,8 +10,6 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ErrorHandler = require("../utils/ErrorHandler");
 const sendShopToken = require("../utils/shopToken");
 const crypto = require("crypto");
-const jwt = require("jsonwebtoken");
-const sendMail = require("../utils/sendMail");
 const bcrypt = require("bcryptjs");
 
 
