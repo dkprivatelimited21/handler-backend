@@ -46,11 +46,14 @@ router.post(
         orders,
       });
     } catch (error) {
-       console.error("Order creation error:", error);
-      return next(new ErrorHandler(error.message, 500));
-    }
-  })
-);
+  console.error("🔥 Order creation failed:", error.message);
+  console.error("🧵 Stack Trace:", error.stack);
+  res.status(500).json({
+    success: false,
+    message: error.message,
+    stack: error.stack,
+  });
+}
 
 // get all orders of user
 router.get(
