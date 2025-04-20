@@ -1,54 +1,44 @@
 const express = require("express");
 const router = express.Router();
+const Razorpay = require("razorpay");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
+const ErrorHandler = require("../utils/ErrorHandler");
 
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-//const Razorpay = require("razorpay");
+// Initialize Razorpay
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_SECRET,
+});
 
-//const razorpay = new Razorpay({
-//  key_id: process.env.RAZORPAY_KEY_ID,
-//  key_secret: process.env.RAZORPAY_SECRET,
-//});
-
-// Stripe payment
+// ✅ Route: Generate Razorpay Order
 router.post(
-  "/process",
+  "/razorpay-checkout",
   catchAsyncErrors(async (req, res, next) => {
-    const myPayment = await stripe.paymentIntents.create({
-      amount: req.body.amount,
+    const { amount } = req.body;
+
+    if (!amount || isNaN(amount)) {
+      return next(new ErrorHandler("Invalid amount", 400));
+    }
+
+    const options = {
+      amount: Math.round(amount), // amount in paisa
       currency: "INR",
-      metadata: {
-        company: "dkprivatelimited21",
-      },
-    });
-    res.status(200).json({
-      success: true,
-      client_secret: myPayment.client_secret,
-    });
+      receipt: `receipt_order_${Date.now()}`,
+    };
+
+    const order = await razorpay.orders.create(options);
+    res.status(200).json(order);
   })
 );
 
-// Stripe API key
+// ✅ Route: Send Razorpay Public Key to Frontend
 router.get(
-  "/stripeapikey",
-  catchAsyncErrors(async (req, res, next) => {
-    res.status(200).json({ stripeApikey: process.env.STRIPE_API_KEY });
+  "/razorpay-key",
+  catchAsyncErrors(async (req, res) => {
+    res.status(200).json({
+      key: process.env.RAZORPAY_KEY_ID,
+    });
   })
 );
-
-// Razorpay order route
-//router.post(
-//  "/razorpay-checkout",
-//  catchAsyncErrors(async (req, res) => {
-//    const options = {
- //     amount: req.body.amount,
-//      currency: "INR",
-//      receipt: `receipt_order_${Date.now()}`,
-//    };
-
- //   const order = await razorpay.orders.create(options);
- //   res.status(200).json(order);
-//  })
-//);
 
 module.exports = router;

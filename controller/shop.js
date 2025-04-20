@@ -9,6 +9,13 @@ const cloudinary = require("cloudinary");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ErrorHandler = require("../utils/ErrorHandler");
 const sendShopToken = require("../utils/shopToken");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
+const sendMail = require("../utils/sendMail");
+const bcrypt = require("bcryptjs");
+
+
+
 
 // Create shop
 router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
@@ -218,6 +225,55 @@ router.put("/update-payment-methods", isSeller, catchAsyncErrors(async (req, res
 
   res.status(201).json({ success: true, seller });
 }));
+
+//
+const { generateResetEmailTemplate } = require("../utils/sendMail");
+
+router.post("/forgot-password", catchAsyncErrors(async (req, res, next) => {
+  const { email } = req.body;
+  const shop = await Shop.findOne({ email });
+  if (!shop) return next(new ErrorHandler("No seller found with this email", 404));
+
+  const token = jwt.sign({ id: shop._id }, process.env.JWT_SECRET_KEY, {
+    expiresIn: "15m",
+  });
+
+  const resetUrl = `https://everythingfree4200@gmail.com/shop/reset-password/${token}`;
+  const html = generateResetEmailTemplate(shop.name, resetUrl);
+
+  await sendMail({
+    email: shop.email,
+    subject: "Reset Your Password - Local Handler",
+    message: "Reset your password using the link below.",
+    html,
+  });
+
+  res.status(200).json({ message: "Reset link sent to your email" });
+}));
+
+
+//resetpassword
+
+router.put("/reset-password/:token", catchAsyncErrors(async (req, res, next) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const shop = await Shop.findById(decoded.id);
+    if (!shop) return next(new ErrorHandler("Invalid token or seller not found", 400));
+
+    shop.password = await bcrypt.hash(password, 10);
+    await shop.save();
+
+    res.status(200).json({ message: "Password has been reset successfully" });
+  } catch (error) {
+    return next(new ErrorHandler("Invalid or expired token", 400));
+  }
+}));
+
+
+
 
 // Seller - Delete withdrawal methods
 router.delete("/delete-withdraw-method", isSeller, catchAsyncErrors(async (req, res, next) => {

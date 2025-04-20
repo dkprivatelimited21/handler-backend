@@ -15,31 +15,38 @@ router.post(
     try {
       const { amount } = req.body;
 
-      const data = {
+      if (!amount || typeof amount !== "number" || amount <= 0) {
+        return next(new ErrorHandler("Invalid withdrawal amount", 400));
+      }
+
+      const taxRate = 0.18; // 18% service tax
+      const serviceCharge = Number((amount * taxRate).toFixed(2));
+      const finalAmount = Number((amount - serviceCharge).toFixed(2));
+
+      const shop = await Shop.findById(req.seller._id);
+
+      if (shop.availableBalance < amount) {
+        return next(new ErrorHandler("Insufficient balance", 400));
+      }
+
+      const withdraw = await Withdraw.create({
         seller: req.seller,
-        amount,
-      };
+        amount: finalAmount,
+        serviceCharge,
+      });
+
+      shop.availableBalance = shop.availableBalance - amount;
+      await shop.save();
 
       try {
         await sendMail({
           email: req.seller.email,
           subject: "Withdraw Request",
-          message: `Hello ${req.seller.name}, Your withdraw request of ${amount}$ is processing. It will take 3days to 7days to processing! `,
-        });
-        res.status(201).json({
-          success: true,
+          message: `Hello ${req.seller.name},\nYour withdraw request of ₹${amount} has been received.\n₹${finalAmount} will be transferred to your bank after ₹${serviceCharge} (18%) service tax.\nProcessing time is 3 to 7 business days.`,
         });
       } catch (error) {
         return next(new ErrorHandler(error.message, 500));
       }
-
-      const withdraw = await Withdraw.create(data);
-
-      const shop = await Shop.findById(req.seller._id);
-
-      shop.availableBalance = shop.availableBalance - amount;
-
-      await shop.save();
 
       res.status(201).json({
         success: true,
@@ -51,8 +58,7 @@ router.post(
   })
 );
 
-// get all withdraws --- admnin
-
+// get all withdraws --- admin
 router.get(
   "/get-all-withdraw-request",
   isAuthenticated,
@@ -61,7 +67,7 @@ router.get(
     try {
       const withdraws = await Withdraw.find().sort({ createdAt: -1 });
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         withdraws,
       });
@@ -91,27 +97,27 @@ router.put(
 
       const seller = await Shop.findById(sellerId);
 
-      const transection = {
+      const transaction = {
         _id: withdraw._id,
         amount: withdraw.amount,
         updatedAt: withdraw.updatedAt,
         status: withdraw.status,
       };
 
-      seller.transections = [...seller.transections, transection];
-
+      seller.transactions = [...(seller.transactions || []), transaction];
       await seller.save();
 
       try {
         await sendMail({
           email: seller.email,
-          subject: "Payment confirmation",
-          message: `Hello ${seller.name}, Your withdraw request of ${withdraw.amount}$ is on the way. Delivery time depends on your bank's rules it usually takes 3days to 7days.`,
+          subject: "Payment Confirmation",
+          message: `Hello ${seller.name},\nYour withdraw of ₹${withdraw.amount} is being processed.\nDelivery time depends on your bank (usually 3 to 7 days).`,
         });
       } catch (error) {
         return next(new ErrorHandler(error.message, 500));
       }
-      res.status(201).json({
+
+      res.status(200).json({
         success: true,
         withdraw,
       });
