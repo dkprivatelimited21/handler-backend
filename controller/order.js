@@ -29,21 +29,24 @@ router.post(
       const orders = [];
 
       for (const [shopId, items] of shopItemsMap) {
-        const order = await Order.create({
-          cart: items,
-          shippingAddress,
-          user,
-          totalPrice,
-          paymentInfo,
-        });
-        orders.push(order);
-      }
+  const order = await Order.create({
+    cart: items,
+    shopId, // <--- this is crucial
+    shippingAddress,
+    user,
+    totalPrice,
+    paymentInfo,
+  });
+  orders.push(order);
+}
+
 
       res.status(201).json({
         success: true,
         orders,
       });
     } catch (error) {
+       console.error("Order creation error:", error);
       return next(new ErrorHandler(error.message, 500));
     }
   })
