@@ -12,48 +12,46 @@ router.post(
   "/create-order",
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const { cart, shippingAddress, user, totalPrice, paymentInfo } = req.body;
+      console.log("📦 Incoming order data:", req.body);
 
-      // Group cart items by shopId
-      const shopItemsMap = new Map();
+      const {
+        cart,
+        shippingAddress,
+        user,
+        totalPrice,
+        paymentInfo,
+      } = req.body;
 
-      for (const item of cart) {
-        const shopId = item.shopId;
-        if (!shopItemsMap.has(shopId)) {
-          shopItemsMap.set(shopId, []);
-        }
-        shopItemsMap.get(shopId).push(item);
+      if (!cart || !shippingAddress || !user || !totalPrice || !paymentInfo) {
+        console.error("❌ Missing required fields");
+        return res.status(400).json({ message: "Missing required fields" });
       }
 
-      const orders = [];
+      const order = await Order.create({
+        cart,
+        shippingAddress,
+        user,
+        totalPrice:Number(totalPrice),
+        paymentInfo,
+      });
 
-      for (const [shopId, items] of shopItemsMap) {
-        const order = await Order.create({
-          cart: items,
-          shopId,
-          shippingAddress,
-          user,
-          totalPrice,
-          paymentInfo,
-        });
-        orders.push(order);
-      }
+      console.log("✅ Order created successfully:", order._id);
 
       res.status(201).json({
         success: true,
-        orders,
+        order,
       });
-    } catch (error) {
-      console.error("🔥 Order creation failed:", error.message);
-      console.error("🧵 Stack Trace:", error.stack);
+    } catch (err) {
+      console.error("🔥 Order creation error:", err);
       res.status(500).json({
         success: false,
-        message: error.message,
-        stack: error.stack,
+        message: "Order creation failed",
+        error: err.message,
       });
     }
   })
 );
+
 
 // ✅ GET ALL ORDERS OF A USER
 router.get(
