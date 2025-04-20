@@ -39,7 +39,7 @@ router.post(
 
       res.status(201).json({
         success: true,
-        order,
+        orders,
       });
     } catch (err) {
       console.error("🔥 Order creation error:", err);
