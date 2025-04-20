@@ -4,13 +4,12 @@ const Razorpay = require("razorpay");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ErrorHandler = require("../utils/ErrorHandler");
 
-// Initialize Razorpay
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_SECRET,
 });
 
-// ✅ Route: Generate Razorpay Order
+// Create Razorpay Order
 router.post(
   "/razorpay-checkout",
   catchAsyncErrors(async (req, res, next) => {
@@ -21,7 +20,7 @@ router.post(
     }
 
     const options = {
-      amount: Math.round(amount), // amount in paisa
+      amount: Math.round(amount),
       currency: "INR",
       receipt: `receipt_order_${Date.now()}`,
     };
@@ -31,7 +30,7 @@ router.post(
   })
 );
 
-// ✅ Route: Send Razorpay Public Key to Frontend
+// Send Razorpay Key
 router.get(
   "/razorpay-key",
   catchAsyncErrors(async (req, res) => {
