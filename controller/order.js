@@ -31,6 +31,7 @@ router.post(
       for (const [shopId, items] of shopItemsMap) {
         const order = await Order.create({
           cart: items,
+	  shopId,
           shippingAddress,
           user,
           totalPrice,
