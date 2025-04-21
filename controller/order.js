@@ -45,7 +45,8 @@ router.post(
         orders,
       });
     } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
+      console.error("Order creation error:", error);
+return next(new ErrorHandler(error.message, 500));
     }
   })
 );
