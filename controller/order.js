@@ -34,7 +34,7 @@ router.post(
 
         shopItemsMap.get(shopId).push({
   productId: item.productId,
-  quantity: item.quantity,
+  quantity: Number(item.quantity),
   selectedSize: item.selectedSize || "",
   selectedColor: item.selectedColor || "",
   shopId: shopId, // ✅ ADD THIS
