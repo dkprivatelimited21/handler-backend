@@ -56,10 +56,12 @@ router.post(
         success: true,
         orders,
       });
-    } catch (error) {
-      console.error("🔥 Order creation error:", error);
-      return next(new ErrorHandler(error.message || "Order creation failed", 500));
-    }
+    }catch (error) {
+  console.error("🔥 Order creation error:", error); // already added
+  console.log("❗Full error stack:", error.stack);   // ⬅️ ADD THIS
+  return next(new ErrorHandler(error.message || "Order creation failed", 500));
+}
+
   })
 );
 
