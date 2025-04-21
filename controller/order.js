@@ -117,57 +117,57 @@ router.get(
 );
 
 // ✅ UPDATE ORDER STATUS BY SELLER
+// Add to top of file
+const validCouriers = {
+  delhivery: /^[0-9]{9,14}$/,
+  bluedart: /^[A-Z0-9]{8,12}$/,
+  ekart: /^FMPC[0-9A-Z]{8,12}$/,
+  ecomExpress: /^[A-Z]{2}[0-9]{9}$/,
+  xpressbees: /^XB[0-9]{9}$/,
+  shadowfax: /^[A-Z0-9]{10,15}$/,
+};
+
 router.put(
   "/update-order-status/:id",
   isSeller,
   catchAsyncErrors(async (req, res, next) => {
-    try {
-      const order = await Order.findById(req.params.id);
+    const { status, trackingId, courier } = req.body;
+    const order = await Order.findById(req.params.id);
+    if (!order) return next(new ErrorHandler("Order not found", 400));
 
-      if (!order) {
-        return next(new ErrorHandler("Order not found with this id", 400));
+    // 🚨 Validate tracking ID for Shipping status
+    if (status === "Shipping") {
+      if (!trackingId || !courier || !validCouriers[courier]) {
+        return next(new ErrorHandler("Courier and tracking ID required", 400));
       }
-
-      if (req.body.status === "Transferred to delivery partner") {
-        order.cart.forEach(async (o) => {
-          await updateOrder(o._id, o.qty);
-        });
+      const pattern = validCouriers[courier];
+      if (!pattern.test(trackingId)) {
+        return next(new ErrorHandler("Invalid tracking ID format", 400));
       }
-
-      order.status = req.body.status;
-
-      if (req.body.status === "Delivered") {
-        order.deliveredAt = Date.now();
-        order.paymentInfo.status = "Succeeded";
-        const serviceCharge = order.totalPrice * 0.1;
-        await updateSellerInfo(order.totalPrice - serviceCharge);
-      }
-
-      await order.save({ validateBeforeSave: false });
-
-      res.status(200).json({
-        success: true,
-        order,
-      });
-
-      // Helper function
-      async function updateOrder(id, qty) {
-        const product = await Product.findById(id);
-        product.stock -= qty;
-        product.sold_out += qty;
-        await product.save({ validateBeforeSave: false });
-      }
-
-      async function updateSellerInfo(amount) {
-        const seller = await Shop.findById(req.seller.id);
-        seller.availableBalance = amount;
-        await seller.save();
-      }
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
+      order.trackingId = trackingId;
+      order.courier = courier;
     }
+
+    order.status = status;
+
+    if (status === "Delivered") {
+      order.deliveredAt = Date.now();
+      order.paymentInfo.status = "Succeeded";
+      const serviceCharge = order.totalPrice * 0.1;
+      const seller = await Shop.findById(req.seller.id);
+      seller.availableBalance = order.totalPrice - serviceCharge;
+      await seller.save();
+    }
+
+    await order.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      success: true,
+      order,
+    });
   })
 );
+
 
 // ✅ USER REQUESTS A REFUND
 router.put(
