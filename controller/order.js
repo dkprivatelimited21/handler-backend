@@ -13,42 +13,46 @@ router.post(
   "/create-order",
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const { cart, shippingAddress, user, totalPrice, paymentInfo } = req.body;
+      console.log("🧾 Incoming order payload:", req.body);
 
-      if (!cart || cart.length === 0) {
-        return next(new ErrorHandler("Cart is empty", 400));
-      }
+      const {
+        cart,
+        shippingAddress,
+        user,
+        totalPrice,
+        paymentInfo,
+      } = req.body;
 
-      console.log("🧾 Incoming order payload:", JSON.stringify(req.body, null, 2));
-
-      // Group cart items by shopId
+      // Group by shop
       const shopItemsMap = new Map();
 
       for (const item of cart) {
         const shopId = item.shopId;
-        if (!shopId) {
-          console.error("❌ Missing shopId in item:", item);
-          return next(new ErrorHandler("Missing shopId in one or more cart items.", 400));
-        }
-
         if (!shopItemsMap.has(shopId)) {
           shopItemsMap.set(shopId, []);
         }
-        shopItemsMap.get(shopId).push(item);
+
+        shopItemsMap.get(shopId).push({
+          productId: item._id, // ✅ required by schema
+          quantity: item.qty || 1, // ✅ fallback to 1 if missing
+          selectedSize: item.selectedSize || "",
+          selectedColor: item.selectedColor || "",
+        });
       }
 
-      // Create a separate order for each shop
+      // Create orders per shop
       const orders = [];
 
-      for (const [shopId, items] of shopItemsMap) {
+      for (const [shopId, shopItems] of shopItemsMap) {
         const order = await Order.create({
-          cart: items,
-          shopId,
+          cart: shopItems,
           shippingAddress,
           user,
           totalPrice,
           paymentInfo,
+          shop: shopId,
         });
+
         orders.push(order);
       }
 
@@ -56,12 +60,11 @@ router.post(
         success: true,
         orders,
       });
-    }catch (error) {
-  console.error("🔥 Order creation error:", error); // already added
-  console.log("❗Full error stack:", error.stack);   // ⬅️ ADD THIS
-  return next(new ErrorHandler(error.message || "Order creation failed", 500));
-}
-
+    } catch (error) {
+      console.error("🔥 Order creation error:", error);
+      console.log("❗Full error stack:", error.stack);
+      return next(new ErrorHandler(error.message || "Order creation failed", 500));
+    }
   })
 );
 
