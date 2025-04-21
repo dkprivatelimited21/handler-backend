@@ -32,11 +32,9 @@ router.post(
 
 // Send Razorpay Key
 router.get(
-  "/razorpay-key",
-  catchAsyncErrors(async (req, res) => {
-    res.status(200).json({
-      key: process.env.RAZORPAY_KEY_ID,
-    });
+  "/get-razorpay-key",
+  catchAsyncErrors(async (req, res, next) => {
+    res.status(200).json({ key: process.env.RAZORPAY_KEY_ID });
   })
 );
 
