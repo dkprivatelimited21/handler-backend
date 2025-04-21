@@ -8,30 +8,42 @@ const Shop = require("../model/shop");
 const Product = require("../model/product");
 
 // ✅ CREATE NEW ORDER
+// ✅ CREATE NEW ORDER
 router.post(
   "/create-order",
   catchAsyncErrors(async (req, res, next) => {
     try {
       const { cart, shippingAddress, user, totalPrice, paymentInfo } = req.body;
 
-      //   group cart items by shopId
+      if (!cart || cart.length === 0) {
+        return next(new ErrorHandler("Cart is empty", 400));
+      }
+
+      console.log("🧾 Incoming order payload:", JSON.stringify(req.body, null, 2));
+
+      // Group cart items by shopId
       const shopItemsMap = new Map();
 
       for (const item of cart) {
         const shopId = item.shopId;
+        if (!shopId) {
+          console.error("❌ Missing shopId in item:", item);
+          return next(new ErrorHandler("Missing shopId in one or more cart items.", 400));
+        }
+
         if (!shopItemsMap.has(shopId)) {
           shopItemsMap.set(shopId, []);
         }
         shopItemsMap.get(shopId).push(item);
       }
 
-      // create an order for each shop
+      // Create a separate order for each shop
       const orders = [];
 
       for (const [shopId, items] of shopItemsMap) {
         const order = await Order.create({
           cart: items,
-	  shopId,
+          shopId,
           shippingAddress,
           user,
           totalPrice,
@@ -45,11 +57,12 @@ router.post(
         orders,
       });
     } catch (error) {
-      console.error("Order creation error:", error);
-return next(new ErrorHandler(error.message, 500));
+      console.error("🔥 Order creation error:", error);
+      return next(new ErrorHandler(error.message || "Order creation failed", 500));
     }
   })
 );
+
 
 // ✅ GET ALL ORDERS OF A USER
 router.get(
