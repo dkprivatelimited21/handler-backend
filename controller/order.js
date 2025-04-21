@@ -33,11 +33,13 @@ router.post(
         }
 
         shopItemsMap.get(shopId).push({
-          productId: item.productId,
-          quantity: item.quantity,
-          selectedSize: item.selectedSize || "",
-          selectedColor: item.selectedColor || "",
-        });
+  productId: item.productId,
+  quantity: item.quantity,
+  selectedSize: item.selectedSize || "",
+  selectedColor: item.selectedColor || "",
+  shopId: shopId, // ✅ ADD THIS
+});
+
       }
 
       // Create orders per shop
@@ -71,11 +73,14 @@ router.post(
 
 
 // ✅ GET ALL ORDERS OF A USER
+// GET ALL ORDERS FOR A SELLER
 router.get(
-  "/get-all-orders/:userId",
+  "/get-seller-all-orders/:shopId",
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const orders = await Order.find({ "user._id": req.params.userId }).sort({
+      const orders = await Order.find({
+        shopId: req.params.shopId, // ✅ FIXED: match top-level shopId
+      }).sort({
         createdAt: -1,
       });
 
@@ -88,6 +93,7 @@ router.get(
     }
   })
 );
+
 
 // ✅ GET ALL ORDERS FOR A SELLER
 router.get(
