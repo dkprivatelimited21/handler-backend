@@ -33,8 +33,8 @@ router.post(
         }
 
         shopItemsMap.get(shopId).push({
-          productId: item._id, // ✅ required by schema
-          quantity: item.qty || 1, // ✅ fallback to 1 if missing
+          productId: item.productId,
+          quantity: item.quantity,
           selectedSize: item.selectedSize || "",
           selectedColor: item.selectedColor || "",
         });
@@ -46,11 +46,11 @@ router.post(
       for (const [shopId, shopItems] of shopItemsMap) {
         const order = await Order.create({
           cart: shopItems,
+          shopId: shopId, // ✅ Correct key
           shippingAddress,
           user,
           totalPrice,
           paymentInfo,
-          shop: shopId,
         });
 
         orders.push(order);
@@ -67,6 +67,7 @@ router.post(
     }
   })
 );
+
 
 
 // ✅ GET ALL ORDERS OF A USER
