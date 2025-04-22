@@ -73,14 +73,11 @@ router.post(
 
 
 // ✅ GET ALL ORDERS OF A USER
-// GET ALL ORDERS FOR A SELLER
 router.get(
-  "/get-seller-all-orders/:shopId",
+  "/get-all-orders/:userId",
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const orders = await Order.find({
-        shopId: req.params.shopId, // ✅ FIXED: match top-level shopId
-      }).sort({
+      const orders = await Order.find({ "user._id": req.params.userId }).sort({
         createdAt: -1,
       });
 
