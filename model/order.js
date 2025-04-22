@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-	shopId: {
+  shopId: {
     type: String,
     required: true,
   },
@@ -16,7 +16,6 @@ const orderSchema = new mongoose.Schema({
       image: { type: String },
       shopId: { type: String },
       isReviewed: { type: Boolean, default: false },
-      trackingId: { type: String, default: null },
     },
   ],
 
@@ -45,6 +44,21 @@ const orderSchema = new mongoose.Schema({
     type: { type: String },
   },
 
+  status: {
+    type: String,
+    default: "Not Shipped", // ✅ now every new order starts with this
+  },
+
+  trackingId: {
+    type: String,
+    default: "",
+  },
+
+  courier: {
+    type: String,
+    default: "",
+  },
+
   paidAt: {
     type: Date,
     default: Date.now(),
@@ -57,4 +71,5 @@ const orderSchema = new mongoose.Schema({
     default: Date.now(),
   },
 });
+
 module.exports = mongoose.model("Order", orderSchema);
