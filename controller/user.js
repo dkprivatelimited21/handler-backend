@@ -1,3 +1,4 @@
+const express = require("express");
 const rateLimit = require("express-rate-limit");  // Import the express-rate-limit package
 const User = require("../model/user");
 const router = express.Router();
