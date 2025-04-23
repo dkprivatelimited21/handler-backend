@@ -9,6 +9,11 @@ const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
+const { forgotPassword, resetPassword } = require("../controllers/authController");
+
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
+
 
 
 
