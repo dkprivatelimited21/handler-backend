@@ -194,6 +194,33 @@ router.put(
   })
 );
 
+// get orders linked to seller's products
+router.get(
+  "/get-orders-for-seller/:sellerId",
+  isAuthenticated,
+  isAdmin("Admin"),
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      const orders = await Order.find({
+        "products.shop": req.params.sellerId,
+      }).populate("products");
+
+      res.status(200).json({
+        success: true,
+        orders,
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+
+
+
+
+
+
 // all products --- for admin
 router.get(
   "/admin-all-products",

@@ -11,7 +11,8 @@ const ErrorHandler = require("../utils/ErrorHandler");
 const sendShopToken = require("../utils/shopToken");
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
-
+const Product = require("../model/product");  // Assuming product model
+const Order = require("../model/order");
 
 
 
@@ -202,16 +203,53 @@ router.get("/admin-all-sellers", isAuthenticated, isAdmin("Admin"), catchAsyncEr
 }));
 
 // Admin - Delete seller
-router.delete("/delete-seller/:id", isAuthenticated, isAdmin("Admin"), catchAsyncErrors(async (req, res, next) => {
-  const seller = await Shop.findById(req.params.id);
-  if (!seller) {
-    return next(new ErrorHandler("Seller not found", 400));
-  }
+router.delete(
+  "/delete-seller/:id",
+  isAuthenticated,
+  isAdmin("Admin"),
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      const sellerId = req.params.id;
 
-  await Shop.findByIdAndDelete(req.params.id);
+      // Find the seller
+      const seller = await Shop.findById(sellerId);
+      if (!seller) {
+        return next(new ErrorHandler("Seller not found", 404));
+      }
 
-  res.status(201).json({ success: true, message: "Seller deleted successfully!" });
-}));
+      // Step 1: Find and delete all products linked to the seller
+      const products = await Product.find({ shop: sellerId });
+      if (products.length > 0) {
+        await Product.deleteMany({ shop: sellerId });
+        console.log(`Deleted ${products.length} products related to the seller.`);
+      }
+
+      // Step 2: Check if any orders exist for the seller's products
+      const ordersWithSellerProducts = await Order.find({
+        "products.shop": sellerId,  // Assuming products have a `shop` field linking to the seller
+      }).populate("products");
+
+      // Step 3: If there are orders, show them to the admin
+      if (ordersWithSellerProducts.length > 0) {
+        return res.status(200).json({
+          success: true,
+          message: "Seller has placed orders. Review the orders before deletion.",
+          orders: ordersWithSellerProducts,
+        });
+      }
+
+      // Step 4: If no orders, proceed with deleting the seller
+      await Shop.findByIdAndDelete(sellerId);
+
+      res.status(200).json({
+        success: true,
+        message: "Seller deleted successfully, and products removed.",
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
 
 // Seller - Update withdrawal methods
 router.put("/update-payment-methods", isSeller, catchAsyncErrors(async (req, res, next) => {
