@@ -78,32 +78,41 @@ router.get(
 );
 
 // update withdraw request ---- admin
+// update withdraw request ---- admin
 router.put(
   "/update-withdraw-request/:id",
   isAuthenticated,
   isAdmin("Admin"),
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const { sellerId } = req.body;
+      const { sellerId, status } = req.body;
 
       const withdraw = await Withdraw.findByIdAndUpdate(
         req.params.id,
         {
-          status: req.body.status || "succeed",
-
+          status: status || "succeed",
           updatedAt: Date.now(),
         },
         { new: true }
       );
 
       const seller = await Shop.findById(sellerId);
-if (!seller) {
-  return next(new ErrorHandler("Seller not found", 404));
-}
+      if (!seller) {
+        return next(new ErrorHandler("Seller not found", 404));
+      }
+
+      // Deduct the final amount (after service charge) from seller's balance
+      if (status === "succeed") {
+        seller.availableBalance -= withdraw.amount;  // Deducting the final amount after service charge
+        await seller.save();
+      }
 
       const transaction = {
         _id: withdraw._id,
         amount: withdraw.amount,
+        serviceCharge: withdraw.serviceCharge,
+        finalAmount: withdraw.amount - withdraw.serviceCharge,
+        upiId: withdraw.withdrawMethod.upiId,
         updatedAt: withdraw.updatedAt,
         status: withdraw.status,
       };
@@ -115,7 +124,7 @@ if (!seller) {
         await sendMail({
           email: seller.email,
           subject: "Payment Confirmation",
-          message: `Hello ${seller.name},\nYour withdraw of ₹${withdraw.amount} is being processed.\nDelivery time depends on your bank (usually 3 to 7 days).`,
+          message: `Hello ${seller.name},\nYour withdraw of ₹${withdraw.amount} is being processed.\nYou will receive ₹${withdraw.amount - withdraw.serviceCharge} after the service charge of ₹${withdraw.serviceCharge}.\nProcessing time depends on your bank (usually 3 to 7 days).`,
         });
       } catch (error) {
         return next(new ErrorHandler(error.message, 500));
@@ -124,11 +133,16 @@ if (!seller) {
       res.status(200).json({
         success: true,
         withdraw,
+        message: `Withdrawal request of ₹${withdraw.amount} is successfully processed.`,
+        finalAmount: withdraw.amount - withdraw.serviceCharge, // Final amount after deducting the service charge
+        serviceCharge: withdraw.serviceCharge,
+        upiId: withdraw.withdrawMethod.upiId, // Send back the UPI ID
       });
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }
   })
 );
+
 
 module.exports = router;
