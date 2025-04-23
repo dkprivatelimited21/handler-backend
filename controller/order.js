@@ -8,6 +8,8 @@ const { isAuthenticated, isSeller, isAdmin } = require("../middleware/auth");
 const Order = require("../model/order");
 const Shop = require("../model/shop");
 const Product = require("../model/product");
+const User = require("../model/user");
+
 
 // ✅ CREATE NEW ORDER
 router.post(
@@ -311,5 +313,36 @@ router.get(
     }
   })
 );
+//get all order from seller admin
+router.get("/admin/users-who-ordered/:sellerId", isAuthenticated,
+  isAdmin("Admin"),
+  catchAsyncErrors(async (req, res, next) => {
+  try {
+    const sellerId = req.params.sellerId;
+
+    const orders = await Order.find({ "cart.shopId": sellerId }).populate("user");
+
+    // Extract unique users from orders
+    const users = {};
+    orders.forEach(order => {
+      if (order.user?._id) {
+        users[order.user._id] = {
+          name: order.user.name,
+          email: order.user.email,
+        };
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      users: Object.values(users),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching users", error });
+  }
+});
+
+
+
 
 module.exports = router;
