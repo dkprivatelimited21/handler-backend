@@ -6,22 +6,6 @@ const bodyParser = require("body-parser");
 
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
-app.get('/invoice/download/:invoiceId', (req, res) => {
-  const doc = new PDFDocument();
-  const invoiceId = req.params.invoiceId;
-
-  // Set up response headers for PDF download
-  res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', `attachment; filename=invoice-${invoiceId}.pdf`);
-
-  doc.pipe(res); // Pipe PDF output directly to the response
-
-  doc.fontSize(12).text('Invoice Details:', 100, 100);
-  doc.text(`Invoice ID: ${invoiceId}`);
-  // Add more invoice details here...
-
-  doc.end();
-});
 
 
 const cors = require("cors");
@@ -38,6 +22,23 @@ app.use("/test", (req, res) => {
 
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
+//invoices download
+app.get('/invoice/download/:invoiceId', (req, res) => {
+  const doc = new PDFDocument();
+  const invoiceId = req.params.invoiceId;
+
+  // Set up response headers for PDF download
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename=invoice-${invoiceId}.pdf`);
+
+  doc.pipe(res); // Pipe PDF output directly to the response
+
+  doc.fontSize(12).text('Invoice Details:', 100, 100);
+  doc.text(`Invoice ID: ${invoiceId}`);
+  // Add more invoice details here...
+
+  doc.end();
+});
 // config
 if (process.env.NODE_ENV !== "PRODUCTION") {
   require("dotenv").config({
