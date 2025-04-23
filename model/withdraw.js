@@ -11,6 +11,10 @@ const withdrawSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+withdrawMethod: {
+  upiId: String,
+},
+
     serviceCharge: {  // Adding service charge field
       type: Number,
       required: true,

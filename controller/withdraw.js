@@ -89,13 +89,17 @@ router.put(
       const withdraw = await Withdraw.findByIdAndUpdate(
         req.params.id,
         {
-          status: "succeed",
+          status: req.body.status || "succeed",
+
           updatedAt: Date.now(),
         },
         { new: true }
       );
 
       const seller = await Shop.findById(sellerId);
+if (!seller) {
+  return next(new ErrorHandler("Seller not found", 404));
+}
 
       const transaction = {
         _id: withdraw._id,
