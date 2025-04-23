@@ -1,3 +1,5 @@
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
 const express = require("express");
 const router = express.Router();
 const ErrorHandler = require("../utils/ErrorHandler");
@@ -7,7 +9,6 @@ const Order = require("../model/order");
 const Shop = require("../model/shop");
 const Product = require("../model/product");
 
-// ✅ CREATE NEW ORDER
 // ✅ CREATE NEW ORDER
 router.post(
   "/create-order",
@@ -33,13 +34,12 @@ router.post(
         }
 
         shopItemsMap.get(shopId).push({
-  productId: item.productId,
-  quantity: Number(item.quantity),
-  selectedSize: item.selectedSize || "",
-  selectedColor: item.selectedColor || "",
-  shopId: shopId, // ✅ ADD THIS
-});
-
+          productId: item.productId,
+          quantity: Number(item.quantity),
+          selectedSize: item.selectedSize || "",
+          selectedColor: item.selectedColor || "",
+          shopId: shopId,
+        });
       }
 
       // Create orders per shop
@@ -48,7 +48,7 @@ router.post(
       for (const [shopId, shopItems] of shopItemsMap) {
         const order = await Order.create({
           cart: shopItems,
-          shopId: shopId, // ✅ Correct key
+          shopId: shopId,
           shippingAddress,
           user,
           totalPrice,
@@ -70,7 +70,71 @@ router.post(
   })
 );
 
+// ✅ DOWNLOAD INVOICE
+router.get(
+  "/download-invoice/:orderId",
+  isAuthenticated,
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      const order = await Order.findById(req.params.orderId);
+      if (!order) return next(new ErrorHandler("Order not found", 404));
 
+      // Check if the user is the owner of the order (either the user or the seller)
+      if (
+        order.user._id.toString() !== req.user._id.toString() &&
+        order.shopId.toString() !== req.seller._id.toString()
+      ) {
+        return next(new ErrorHandler("Unauthorized access", 403));
+      }
+
+      const doc = new PDFDocument({ margin: 50 });
+
+      // Set response headers
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=invoice_${order._id}.pdf`
+      );
+
+      // Pipe PDF to response
+      doc.pipe(res);
+
+      // 🧾 Build Invoice PDF content
+      doc.fontSize(20).text("Order Invoice", { align: "center" });
+      doc.moveDown();
+
+      doc.fontSize(12).text(`Order ID: ${order._id}`);
+      doc.text(`Customer: ${order.user.name || "Guest"}`);
+      doc.text(`Email: ${order.user.email}`);
+      doc.text(`Date: ${new Date(order.createdAt).toLocaleString()}`);
+      doc.moveDown();
+
+      doc.fontSize(14).text("Shipping Address:");
+      doc.fontSize(12).text(`${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.country} - ${order.shippingAddress.zipCode}`);
+      doc.moveDown();
+
+      doc.fontSize(14).text("Order Items:");
+      order.cart.forEach((item, index) => {
+        doc.fontSize(12).text(
+          `${index + 1}. Product ID: ${item.productId}, Quantity: ${item.quantity}, Size: ${item.selectedSize}, Color: ${item.selectedColor}`
+        );
+      });
+      doc.moveDown();
+
+      doc.fontSize(14).text(`Total Amount Paid: ₹${order.totalPrice}`);
+      doc.fontSize(12).text(`Payment Method: ${order.paymentInfo.type || "UPI"}`);
+      doc.text(`Payment Status: ${order.paymentInfo.status}`);
+      doc.moveDown();
+
+      doc.text("Thank you for shopping with Local Handler!");
+
+      doc.end(); // Finalize the PDF
+
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
 
 // ✅ GET ALL ORDERS OF A USER
 router.get(
@@ -90,7 +154,6 @@ router.get(
     }
   })
 );
-
 
 // ✅ GET ALL ORDERS FOR A SELLER
 router.get(
@@ -114,7 +177,6 @@ router.get(
 );
 
 // ✅ UPDATE ORDER STATUS BY SELLER
-// Add to top of file
 const validCouriers = {
   delhivery: /^[0-9]{9,14}$/,
   bluedart: /^[A-Z0-9]{8,12}$/,
@@ -164,7 +226,6 @@ router.put(
     });
   })
 );
-
 
 // ✅ USER REQUESTS A REFUND
 router.put(
