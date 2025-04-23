@@ -6,10 +6,6 @@ const bodyParser = require("body-parser");
 
 
 
-app.use("/api/v2/user", authRoutes);
-
-
-
 const cors = require("cors");
 app.use(cors({
   origin: ['https://local-handler.vercel.app',],
