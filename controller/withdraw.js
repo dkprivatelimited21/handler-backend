@@ -29,11 +29,15 @@ router.post(
         return next(new ErrorHandler("Insufficient balance", 400));
       }
 
-      const withdraw = await Withdraw.create({
-        seller: req.seller,
-        amount: finalAmount,
-        serviceCharge,
-      });
+     const withdraw = await Withdraw.create({
+  seller: req.seller._id,
+  amount: finalAmount,
+  serviceCharge,
+  withdrawMethod: {
+    upiId: shop.withdrawMethod?.upiId || "",
+  },
+});
+
 
       shop.availableBalance = shop.availableBalance - amount;
       await shop.save();
@@ -65,7 +69,10 @@ router.get(
   isAdmin("Admin"),
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const withdraws = await Withdraw.find().sort({ createdAt: -1 });
+      const withdraws = await Withdraw.find()
+  .sort({ createdAt: -1 })
+  .populate("seller"); // 👈 This fetches full seller info
+
 
       res.status(200).json({
         success: true,
