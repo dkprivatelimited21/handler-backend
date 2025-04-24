@@ -20,9 +20,6 @@ const sendMail = async (options) => {
   await transporter.sendMail(mailOptions);
 };
 
-console.log("SMTP_MAIL:", process.env.SMTP_MAIL);
-console.log("SMTP_PASSWORD:", process.env.SMTP_PASSWORD ? "Present ✅" : "Missing ❌");
-
 
 const generateResetEmailTemplate = (name, resetUrl) => {
   return `
