@@ -23,7 +23,7 @@ app.use("/test", (req, res) => {
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
 //invoices download
-app.get('/invoice/download/:invoiceId', (req, res) => {
+app.get('/download-invoice/:orderId', (req, res) => {
   const doc = new PDFDocument();
   const invoiceId = req.params.invoiceId;
 
