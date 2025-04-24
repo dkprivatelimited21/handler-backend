@@ -73,6 +73,7 @@ router.post(
 );
 
 // ✅ DOWNLOAD INVOICE
+// ✅ DOWNLOAD INVOICE
 router.get(
   "/download-invoice/:orderId",
   isAuthenticated,
@@ -88,6 +89,10 @@ router.get(
       ) {
         return next(new ErrorHandler("Unauthorized access", 403));
       }
+
+      // Fetch seller's address (from the shop)
+      const shop = await Shop.findById(order.shopId);
+      if (!shop) return next(new ErrorHandler("Seller not found", 404));
 
       const doc = new PDFDocument({ margin: 50 });
 
@@ -115,6 +120,12 @@ router.get(
       doc.fontSize(12).text(`${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.country} - ${order.shippingAddress.zipCode}`);
       doc.moveDown();
 
+      // Add Seller's Address to the invoice
+      doc.fontSize(14).text("Seller's Address:");
+doc.fontSize(12).text(`${shop.address.street}, ${shop.address.city}, ${shop.address.state || ""}, ${shop.address.country} - ${shop.address.zipCode}`);
+
+      doc.moveDown();
+
       doc.fontSize(14).text("Order Items:");
       order.cart.forEach((item, index) => {
         doc.fontSize(12).text(
@@ -137,6 +148,7 @@ router.get(
     }
   })
 );
+
 
 // ✅ GET ALL ORDERS OF A USER
 router.get(
