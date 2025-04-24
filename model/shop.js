@@ -42,7 +42,7 @@ const shopSchema = new mongoose.Schema({
   avatar: {
   url: { type: String, required: true },
   public_id: { type: String, required: false },
-}
+},
 
   withdrawMethod: {
     type: Object,
