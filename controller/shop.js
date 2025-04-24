@@ -220,7 +220,7 @@ router.delete(
   } catch (error) {
     res.status(500).json({ success: false, message: "Error deleting seller", error });
   }
-});
+}))
 
 // Seller - Update withdrawal methods
 router.put("/update-payment-methods", isSeller, catchAsyncErrors(async (req, res, next) => {
