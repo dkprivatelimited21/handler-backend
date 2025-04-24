@@ -23,23 +23,26 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("User already exists", 400));
   }
 
-  const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
-    folder: "avatars",
-  });
+  const defaultAvatarUrl = "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg";
+
 
   const seller = {
-    name: req.body.name,
-    email: email,
-    password: req.body.password,
-   address: {
-  street: req.body.address?.street,
-  city: req.body.address?.city,
-  state: req.body.address?.state,
-  country: req.body.address?.country,
-},
-    phoneNumber: req.body.phoneNumber,
-    zipCode: req.body.zipCode,
-  };
+  name: req.body.name,
+  email: req.body.email,
+  password: req.body.password,
+  address: {
+    street: req.body.address?.street,
+    city: req.body.address?.city,
+    state: req.body.address?.state,
+    country: req.body.address?.country,
+  },
+  phoneNumber: req.body.phoneNumber,
+  zipCode: req.body.zipCode,
+  avatar: {
+    url: defaultAvatarUrl,
+    public_id: null, // optional
+  },
+};
 
   const activationToken = createActivationToken(seller);
   const activationUrl = `https://local-handler.vercel.app/seller/activation/${activationToken}`;

@@ -32,15 +32,17 @@ router.post("/create-user", async (req, res, next) => {
       return next(new ErrorHandler("User already exists", 400));
     }
 
-    const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-      folder: "avatars",
-    });
+   const defaultAvatarUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
     const user = {
-      name: name,
-      email: email,
-      password: password,
-    };
+  name: name,
+  email: email,
+  password: password,
+  avatar: {
+    url: defaultAvatarUrl,
+    public_id: null,
+  },
+};
 
     const activationToken = createActivationToken(user);
 
@@ -86,7 +88,17 @@ router.post(
       if (!newUser) {
         return next(new ErrorHandler("Invalid token", 400));
       }
-      const { name, email, password, avatar } = newUser;
+      const defaultAvatarUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+user = await User.create({
+  name,
+  email,
+  password,
+  avatar: {
+    url: defaultAvatarUrl,
+    public_id: null,
+  },
+});
 
       let user = await User.findOne({ email });
 

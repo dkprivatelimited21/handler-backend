@@ -40,15 +40,10 @@ const shopSchema = new mongoose.Schema({
     default: "Seller",
   },
   avatar: {
-    public_id: {
-      type: String,
-      required: false,
-    },
-    url: {
-      type: String,
-      required: true,
-    },
-  },
+  url: { type: String, required: true },
+  public_id: { type: String, required: false },
+}
+
   withdrawMethod: {
     type: Object,
   },
