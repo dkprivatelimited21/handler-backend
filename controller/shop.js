@@ -59,7 +59,8 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
       message: `Please check your email (${seller.email}) to activate your shop.`,
     });
   } catch (error) {
-    return next(new ErrorHandler(error.message, 500));
+    return next(toast.error(error?.response?.data?.message || "Something went wrong");
+);
   }
 }));
 
