@@ -240,4 +240,33 @@ router.get(
     }
   })
 );
+
+// DELETE product as Admin
+router.delete(
+  "/admin-delete-product/:id",
+  isAuthenticated,
+  isAdmin("Admin"),
+  catchAsyncErrors(async (req, res, next) => {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return next(new ErrorHandler("Product not found", 404));
+    }
+
+    // Delete images from Cloudinary
+    for (let i = 0; i < product.images.length; i++) {
+      await cloudinary.v2.uploader.destroy(product.images[i].public_id);
+    }
+
+    await Product.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({ success: true, message: "Product deleted by admin." });
+  })
+);
+
+
+
+
+
+
+
 module.exports = router;
