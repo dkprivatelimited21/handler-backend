@@ -1,8 +1,8 @@
 const nodemailer = require("nodemailer");
 
-const sendMail = async ({ email, subject, message, html }) => {
+const sendMail = async (options) => {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    service: "gmail", // or 'smtp.mailtrap.io' or any SMTP service you use
     auth: {
       user: process.env.SMTP_MAIL,
       pass: process.env.SMTP_PASSWORD,
@@ -11,11 +11,10 @@ const sendMail = async ({ email, subject, message, html }) => {
 
   const mailOptions = {
     from: process.env.SMTP_MAIL,
-    to: email,
-    subject,
-    // ✅ Ensure text is always set
-    text: message || "Please view this email in an HTML-compatible client.",
-    html,
+    to: options.email,
+    subject: options.subject,
+    text: options.message,
+    html: options.html || null,
   };
 
   await transporter.sendMail(mailOptions);
