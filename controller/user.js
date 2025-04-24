@@ -40,10 +40,6 @@ router.post("/create-user", async (req, res, next) => {
       name: name,
       email: email,
       password: password,
-      avatar: {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      },
     };
 
     const activationToken = createActivationToken(user);
