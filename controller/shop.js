@@ -48,21 +48,20 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
   const activationUrl = `https://local-handler.vercel.app/seller/activation/${activationToken}`;
 
   try {
-    await sendMail({
-      email: seller.email,
-      subject: "Activate your Shop",
-      message: `Hello ${seller.name}, please click on the link to activate your shop: ${activationUrl}`,
-    });
+  await sendMail({
+    email: seller.email,
+    subject: "Activate your Shop",
+    message: `Hello ${seller.name}, please click on the link to activate your shop: ${activationUrl}`,
+  });
 
-    res.status(201).json({
-      success: true,
-      message: `Please check your email (${seller.email}) to activate your shop.`,
-    });
-  } catch (error) {
-    return next(toast.error(error?.response?.data?.message || "Something went wrong");
-);
-  }
-}));
+  res.status(201).json({
+    success: true,
+    message: `Please check your email (${seller.email}) to activate your shop.`,
+  });
+} catch (error) {
+  return next(new ErrorHandler(error.message || "Something went wrong", 500));
+}
+
 
 // Create activation token
 const createActivationToken = (seller) => {
