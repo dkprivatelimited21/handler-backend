@@ -4,10 +4,6 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 
-const PDFDocument = require('pdfkit');
-const fs = require('fs');
-
-
 const cors = require("cors");
 app.use(cors({
   origin: ['https://local-handler.vercel.app',],
@@ -22,23 +18,6 @@ app.use("/test", (req, res) => {
 
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
-//invoices download
-app.get('/download-invoice/:orderId', (req, res) => {
-  const doc = new PDFDocument();
-  const invoiceId = req.params.invoiceId;
-
-  // Set up response headers for PDF download
-  res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', `attachment; filename=invoice-${invoiceId}.pdf`);
-
-  doc.pipe(res); // Pipe PDF output directly to the response
-
-  doc.fontSize(12).text('Invoice Details:', 100, 100);
-  doc.text(`Invoice ID: ${invoiceId}`);
-  // Add more invoice details here...
-
-  doc.end();
-});
 // config
 if (process.env.NODE_ENV !== "PRODUCTION") {
   require("dotenv").config({
@@ -57,7 +36,7 @@ const order = require("./controller/order");
 const conversation = require("./controller/conversation");
 const message = require("./controller/message");
 const withdraw = require("./controller/withdraw");
-
+const download-invoices = require("./controller/order");
 
 app.use("/api/v2/user", user);
 app.use("/api/v2/conversation", conversation);
@@ -69,7 +48,7 @@ app.use("/api/v2/event", event);
 app.use("/api/v2/coupon", coupon);
 app.use("/api/v2/payment", payment);
 app.use("/api/v2/withdraw", withdraw);
-
+app.use("/api/v2/download-invoice", download-invoice);
 
 // it's for ErrorHandling
 app.use(ErrorHandler);
