@@ -108,40 +108,43 @@ router.get(
 
       // 🧾 Build Invoice PDF content
       doc.fontSize(20).text("Order Invoice", { align: "center" });
-      doc.moveDown();
+doc.moveDown();
 
-      doc.fontSize(12).text(`Order ID: ${order._id}`);
-      doc.text(`Customer: ${order.user.name || "Guest"}`);
-      doc.text(`Email: ${order.user.email}`);
-      doc.text(`Date: ${new Date(order.createdAt).toLocaleString()}`);
-      doc.moveDown();
+// Order Details
+doc.fontSize(12).text(`Order ID: ${order._id}`);
+doc.text(`Customer: ${order.user.name || "Guest"}`);
+doc.text(`Email: ${order.user.email}`);
+doc.text(`Date: ${new Date(order.createdAt).toLocaleString()}`);
+doc.moveDown();
 
-      doc.fontSize(14).text("Shipping Address:");
-      doc.fontSize(12).text(`${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.country} - ${order.shippingAddress.zipCode}`);
-      doc.moveDown();
+// Shipping Address
+doc.fontSize(14).text("Shipping Address:");
+doc.fontSize(12).text(`${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.country} - ${order.shippingAddress.zipCode}`);
+doc.moveDown();
 
-      // Add Seller's Address to the invoice
-      doc.fontSize(14).text("Seller's Address:");
+// Seller's Address
+doc.fontSize(14).text("Seller's Address:");
 doc.fontSize(12).text(`${shop.address.street}, ${shop.address.city}, ${shop.address.state || ""}, ${shop.address.country} - ${shop.address.zipCode}`);
+doc.moveDown();
 
-      doc.moveDown();
+// Order Items
+doc.fontSize(14).text("Order Items:");
+order.cart.forEach((item, index) => {
+  doc.fontSize(12).text(
+    `${index + 1}. Product ID: ${item.productId}, Quantity: ${item.quantity}, Size: ${item.selectedSize || "N/A"}, Color: ${item.selectedColor || "N/A"}`
+  );
+});
+doc.moveDown();
 
-      doc.fontSize(14).text("Order Items:");
-      order.cart.forEach((item, index) => {
-        doc.fontSize(12).text(
-          `${index + 1}. Product ID: ${item.productId}, Quantity: ${item.quantity}, Size: ${item.selectedSize}, Color: ${item.selectedColor}`
-        );
-      });
-      doc.moveDown();
+// Total Amount and Payment Info
+doc.fontSize(14).text(`Total Amount Paid: ₹${order.totalPrice.toFixed(2)}`);
+doc.fontSize(12).text(`Payment Method: ${order.paymentInfo.type || "UPI"}`);
+doc.text(`Payment Status: ${order.paymentInfo.status}`);
+doc.moveDown();
 
-      doc.fontSize(14).text(`Total Amount Paid: ₹${order.totalPrice}`);
-      doc.fontSize(12).text(`Payment Method: ${order.paymentInfo.type || "UPI"}`);
-      doc.text(`Payment Status: ${order.paymentInfo.status}`);
-      doc.moveDown();
-
-      doc.text("Thank you for shopping with Local Handler!");
-
-      doc.end(); // Finalize the PDF
+// Footer Message
+doc.text("Thank you for shopping with Local Handler!");
+doc.end(); // Finalize the PDF
 
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
