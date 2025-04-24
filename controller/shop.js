@@ -35,7 +35,12 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
       public_id: myCloud.public_id,
       url: myCloud.secure_url,
     },
-    address: req.body.address,
+   address: {
+  street: req.body.address?.street,
+  city: req.body.address?.city,
+  state: req.body.address?.state,
+  country: req.body.address?.country,
+},
     phoneNumber: req.body.phoneNumber,
     zipCode: req.body.zipCode,
   };
