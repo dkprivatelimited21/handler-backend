@@ -36,7 +36,7 @@ const order = require("./controller/order");
 const conversation = require("./controller/conversation");
 const message = require("./controller/message");
 const withdraw = require("./controller/withdraw");
-const download-invoices = require("./controller/order");
+const downloadInvoices = require("./controller/order");
 
 app.use("/api/v2/user", user);
 app.use("/api/v2/conversation", conversation);
@@ -48,7 +48,7 @@ app.use("/api/v2/event", event);
 app.use("/api/v2/coupon", coupon);
 app.use("/api/v2/payment", payment);
 app.use("/api/v2/withdraw", withdraw);
-app.use("/api/v2/download-invoice", download-invoice);
+app.use("/api/v2/order/download-invoice", downloadInvoices);
 
 // it's for ErrorHandling
 app.use(ErrorHandler);
