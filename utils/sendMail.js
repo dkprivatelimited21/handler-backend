@@ -20,6 +20,10 @@ const sendMail = async (options) => {
   await transporter.sendMail(mailOptions);
 };
 
+console.log("SMTP_MAIL:", process.env.SMTP_MAIL);
+console.log("SMTP_PASSWORD:", process.env.SMTP_PASSWORD ? "Present ✅" : "Missing ❌");
+
+
 const generateResetEmailTemplate = (name, resetUrl) => {
   return `
     <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 10px;">
