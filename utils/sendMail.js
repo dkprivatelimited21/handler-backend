@@ -13,14 +13,12 @@ const sendMail = async ({ email, subject, message, html }) => {
     from: process.env.SMTP_MAIL,
     to: email,
     subject,
-    text: message || "This is an HTML email. Please enable HTML view.",
+    // ✅ Ensure text is always set
+    text: message || "Please view this email in an HTML-compatible client.",
     html,
   };
 
   await transporter.sendMail(mailOptions);
 };
-
-module.exports = sendMail;
-
 
 module.exports = sendMail;
