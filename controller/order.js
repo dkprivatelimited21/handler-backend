@@ -340,7 +340,7 @@ router.get("/admin/users-who-ordered/:sellerId", isAuthenticated,
   } catch (error) {
     res.status(500).json({ success: false, message: "Error fetching users", error });
   }
-});
+}));
 
 
 
