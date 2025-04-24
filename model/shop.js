@@ -1,3 +1,8 @@
+const mongoose = require("mongoose");  // Ensure mongoose is imported
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
+
 const shopSchema = new mongoose.Schema({
   name: {
     type: String,
