@@ -13,7 +13,6 @@ const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const Product = require("../model/product");  // Assuming product model
 const Order = require("../model/order");
-const Product = require("../model/product");
 
 
 // Create shop
