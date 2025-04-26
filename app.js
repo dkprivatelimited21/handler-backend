@@ -1,15 +1,19 @@
+const cors = require("cors");
 const express = require("express");
 const ErrorHandler = require("./middleware/error");
 const app = express();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 
-const cors = require("cors");
-app.use(cors({
-    origin: 'https://local-handler.vercel.app',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+
+const corsOptions = {
+  origin: 'https://local-handler.vercel.app',  // Replace with your frontend URL
+  credentials: true,  // Enable credentials
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());
