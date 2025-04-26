@@ -6,8 +6,9 @@ const bodyParser = require("body-parser");
 
 const cors = require("cors");
 app.use(cors({
-  origin: ['https://local-handler.vercel.app',],
-  credentials: true
+    origin: 'https://local-handler.vercel.app',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 app.use(express.json());
