@@ -19,12 +19,14 @@ router.post(
       console.log("🧾 Incoming order payload:", req.body);
 
       const {
-        cart,
-        shippingAddress,
-        user,
-        totalPrice,
-        paymentInfo,
-      } = req.body;
+  cart,
+  shippingAddress,
+  user,
+  totalPrice,
+  paymentInfo,
+  shipping, // ADD this line ✅
+} = req.body;
+
 
       // Group by shop
       const shopItemsMap = new Map();
@@ -48,14 +50,16 @@ router.post(
       const orders = [];
 
       for (const [shopId, shopItems] of shopItemsMap) {
-        const order = await Order.create({
-          cart: shopItems,
-          shopId: shopId,
-          shippingAddress,
-          user,
-          totalPrice,
-          paymentInfo,
-        });
+       const order = await Order.create({
+  cart: shopItems,
+  shopId: shopId,
+  shippingAddress,
+  user,
+  totalPrice,
+  paymentInfo,
+  shipping, // ADD this line ✅
+});
+
 
         orders.push(order);
       }
@@ -119,7 +123,7 @@ doc.moveDown();
 
 // Shipping Address
 doc.fontSize(14).text("Shipping Address:");
-doc.fontSize(12).text(`${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.country} - ${order.shippingAddress.zipCode}`);
+doc.fontSize(12).text(`${order.shippingAddress.address1}, ${order.shippingAddress.address2}, ${order.shippingAddress.city}, ${order.shippingAddress.country} - ${order.shippingAddress.zipCode}`);
 doc.moveDown();
 
 // Seller's Address

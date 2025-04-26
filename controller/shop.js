@@ -13,7 +13,6 @@ const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const Product = require("../model/product");
 const Order = require("../model/order");
-const { generateResetEmailTemplate } = require("../utils/sendMail");
 
 // Create activation token
 const createActivationToken = (seller) => {
@@ -140,41 +139,20 @@ router.get("/logout", catchAsyncErrors(async (req, res) => {
   res.status(201).json({ success: true, message: "Logged out successfully!" });
 }));
 
-router.post("/forgot-password", catchAsyncErrors(async (req, res, next) => {
-  const { email } = req.body;
-  const shop = await Shop.findOne({ email });
-  if (!shop) return next(new ErrorHandler("No seller found with this email", 404));
 
-  const token = jwt.sign({ id: shop._id }, process.env.JWT_SECRET_KEY, { expiresIn: "15m" });
-  const resetUrl = `https://local-handler.vercel.app/shop/reset-password/${token}`;
-  const html = generateResetEmailTemplate(shop.name, resetUrl);
-
-  await sendMail({
-    email: shop.email,
-    subject: "Reset Your Password - Local Handler",
-    message: "Reset your password using the link below.",
-    html,
-  });
-
-  res.status(200).json({ message: "Reset link sent to your email" });
-}));
-
-router.put("/reset-password/:token", catchAsyncErrors(async (req, res, next) => {
-  const { token } = req.params;
-  const { password } = req.body;
-
+// ✅ Get single shop info (for shipping calculation)
+router.get("/get-shop-info/:id", catchAsyncErrors(async (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    const shop = await Shop.findById(decoded.id);
-    if (!shop) return next(new ErrorHandler("Invalid token or seller not found", 400));
+    const shop = await Shop.findById(req.params.id);
+    if (!shop) return next(new ErrorHandler("Shop not found", 404));
 
-    shop.password = await bcrypt.hash(password, 10);
-    await shop.save();
-
-    res.status(200).json({ message: "Password has been reset successfully" });
+    res.status(200).json({ success: true, shop });
   } catch (error) {
-    return next(new ErrorHandler("Invalid or expired token", 400));
+    return next(new ErrorHandler(error.message, 500));
   }
 }));
+
+
+
 
 module.exports = router;
